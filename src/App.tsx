@@ -9,7 +9,7 @@ function App() {
     <Router basename={process.env.PUBLIC_URL}>
       <Header />
       <Switch>
-        <Route path="/tv">
+        <Route path={["/tv", "/tvs/:tvId"]}>
           <Tv />
         </Route>
         <Route path="/search">
