@@ -88,7 +88,7 @@ const DItemValue = styled.span`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  color: #f39c12;
+  color: ${(props) => props.theme.orange};
   font-size: 18px;
 `;
 

@@ -11,4 +11,5 @@ export const theme: DefaultTheme = {
     lighter: "#fff",
     darker: "#e5e5e5",
   },
+  orange: "#f39c12",
 };
