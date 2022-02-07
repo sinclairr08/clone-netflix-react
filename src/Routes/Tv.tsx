@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import { getResults, IGetContentsResult } from "../api";
+import { getResults, IContent, IGetContentsResult } from "../api";
 import Banner from "../Components/Banner";
 import Slider from "../Components/Slider";
 import { makeImagePath } from "../utils";
@@ -37,7 +37,13 @@ function Tv() {
       getResults(contentType, "popular")
     );
 
-  const isLoading = topRatedLoading && airingTodayLoading && popularLoading;
+  const { data: latestData, isLoading: latestLoading } = useQuery<IContent>(
+    [contentType, "latest"],
+    () => getResults(contentType, "latest")
+  );
+
+  const isLoading =
+    topRatedLoading && airingTodayLoading && popularLoading && latestLoading;
 
   return (
     <Wrapper>
@@ -69,6 +75,13 @@ function Tv() {
             <Slider
               name="Airing Today"
               contents={airingTodayData.results}
+              contentType={contentType}
+            />
+          )}
+          {latestData && (
+            <Slider
+              name="Latest"
+              contents={[latestData]}
               contentType={contentType}
             />
           )}

@@ -1,5 +1,10 @@
+const emptyId = "/qD7QAWEi5mUPyrhwWHoh9qfOliG.jpg";
+
 export function makeImagePath(id: string, format?: string) {
-  if (id === "") return ``;
+  if (id === "")
+    return `https://image.tmdb.org/t/p/${
+      format ? format : "original"
+    }/${emptyId}`;
   return `https://image.tmdb.org/t/p/${format ? format : "original"}/${id}`;
 }
 

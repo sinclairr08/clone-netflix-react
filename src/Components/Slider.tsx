@@ -134,7 +134,7 @@ function Slider({ contents, contentType, name }: ISlider) {
   const [back, setBack] = useState(false);
 
   const totalMovies = contents.length;
-  const maxIndex = Math.floor(totalMovies / offset) - 1;
+  const maxIndex = totalMovies === 1 ? 0 : Math.floor(totalMovies / offset) - 1;
 
   const searchKeyword = new URLSearchParams(location.search).get("keyword");
   const searchMovieId = new URLSearchParams(location.search).get("movie");

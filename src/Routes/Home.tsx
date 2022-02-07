@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import { getResults, IGetContentsResult } from "../api";
+import { getResults, IContent, IGetContentsResult } from "../api";
 import Banner from "../Components/Banner";
 import Slider from "../Components/Slider";
 import { makeImagePath } from "../utils";
@@ -37,7 +37,13 @@ function Home() {
       getResults(contentType, "upcoming")
     );
 
-  const isLoading = nowPlayingLoading && topRatedLoading && upComingLoading;
+  const { data: latestData, isLoading: latestLoading } = useQuery<IContent>(
+    [contentType, "latest"],
+    () => getResults(contentType, "latest")
+  );
+
+  const isLoading =
+    nowPlayingLoading && topRatedLoading && upComingLoading && latestLoading;
 
   return (
     <Wrapper>
@@ -70,6 +76,13 @@ function Home() {
             <Slider
               name="Upcoming Movies"
               contents={upComingData.results}
+              contentType={contentType}
+            />
+          )}
+          {latestData && (
+            <Slider
+              name="Latest"
+              contents={[latestData]}
               contentType={contentType}
             />
           )}
