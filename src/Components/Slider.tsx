@@ -33,7 +33,10 @@ const SliderMoveBtn = styled.button`
   padding: 2px 5px;
   margin-top: 8px;
   margin-left: 7px;
-  font-size: 14px;
+  font-size: 20px;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const SliderRow = styled(motion.div)`
@@ -133,6 +136,10 @@ function Slider({ contents, contentType, name }: ISlider) {
   const totalMovies = contents.length;
   const maxIndex = Math.floor(totalMovies / offset) - 1;
 
+  const searchKeyword = new URLSearchParams(location.search).get("keyword");
+  const searchMovieId = new URLSearchParams(location.search).get("movie");
+  const searchTvId = new URLSearchParams(location.search).get("tv");
+
   const toggleLeaving = () => setLeaving((prev) => !prev);
   const increaseIndex = () => {
     if (leaving) return;
@@ -149,9 +156,9 @@ function Slider({ contents, contentType, name }: ISlider) {
   const onBoxClicked = (contentId: number) => {
     if (location.pathname === "/search") {
       if (contentType === "movie") {
-        history.push(`/search${location.search}&movie=${contentId}`);
+        history.push(`/search?keyword=${searchKeyword}&movie=${contentId}`);
       } else {
-        history.push(`/search${location.search}&tv=${contentId}`);
+        history.push(`/search?keyword=${searchKeyword}&tv=${contentId}`);
       }
     } else {
       if (contentType === "movie") {
@@ -166,8 +173,6 @@ function Slider({ contents, contentType, name }: ISlider) {
     useRouteMatch<{ movieId: string }>("/movies/:movieId");
   const clickedTvMatch = useRouteMatch<{ tvId: string }>("/tvs/:tvId");
 
-  console.log(clickedMovieMatch);
-
   const clickedMovie =
     clickedMovieMatch?.params.movieId &&
     contents.find(
@@ -178,13 +183,22 @@ function Slider({ contents, contentType, name }: ISlider) {
     clickedTvMatch?.params.tvId &&
     contents.find((content) => content.id === +clickedTvMatch.params.tvId);
 
+  const clickedSearchMovie =
+    searchMovieId && contents.find((content) => content.id === +searchMovieId);
+
+  const clickedSearchTv =
+    searchTvId && contents.find((content) => content.id === +searchTvId);
+
+  /*console.log("ID", searchMovieId);*/
+  /*console.log(clickedSearchMovie); */
+
   return (
     <>
       <SliderWrapper>
         <SliderHeader>
           <SliderHeaderTitle>{name}</SliderHeaderTitle>
-          <SliderMoveBtn onClick={decreaseIndex}>prev</SliderMoveBtn>
-          <SliderMoveBtn onClick={increaseIndex}>next</SliderMoveBtn>
+          <SliderMoveBtn onClick={decreaseIndex}>{"<"}</SliderMoveBtn>
+          <SliderMoveBtn onClick={increaseIndex}>{">"}</SliderMoveBtn>
         </SliderHeader>
         <AnimatePresence
           initial={false}
@@ -245,6 +259,24 @@ function Slider({ contents, contentType, name }: ISlider) {
           contentType={contentType}
           contentId={+clickedTvMatch.params.tvId}
           clickedContent={clickedTv}
+        />
+      ) : null}
+
+      {clickedSearchMovie && searchMovieId ? (
+        <SliderClickedBox
+          name={name}
+          contentType={contentType}
+          contentId={+searchMovieId}
+          clickedContent={clickedSearchMovie}
+        />
+      ) : null}
+
+      {clickedSearchTv && searchTvId ? (
+        <SliderClickedBox
+          name={name}
+          contentType={contentType}
+          contentId={+searchTvId}
+          clickedContent={clickedSearchTv}
         />
       ) : null}
     </>

@@ -55,7 +55,7 @@ const Circle = styled(motion.span)`
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  bottom: -5px;
+  bottom: -10px;
   left: 0;
   right: 0;
   margin: 0 auto;

@@ -16,6 +16,25 @@ export interface IContent {
   original_language: string;
 }
 
+export interface IGenre {
+  id: number;
+  name: string;
+}
+
+export interface ICreate {
+  name: string;
+}
+
+export interface ICompany {
+  name: string;
+}
+
+export interface IGetDetailResult {
+  created_by?: ICreate[];
+  genres: IGenre[];
+  production_companies: ICompany[];
+}
+
 export interface IGetContentsResult {
   page: number;
   results: IContent[];
@@ -32,5 +51,17 @@ export function getResults(contentType: string, itemType: string) {
 export function getSearch(contentType: string, keyword: string) {
   return fetch(
     `${BASE_PATH}/search/${contentType}?api_key=${API_KEY}&query=${keyword}`
+  ).then((response) => response.json());
+}
+
+export function getLatest(contentType: string) {
+  return fetch(`${BASE_PATH}/${contentType}/latest?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+
+export function getDetailResults(contentType: string, contentId: number) {
+  return fetch(
+    `${BASE_PATH}/${contentType}/${contentId}?api_key=${API_KEY}`
   ).then((response) => response.json());
 }

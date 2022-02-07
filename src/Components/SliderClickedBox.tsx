@@ -1,7 +1,9 @@
 import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
+import { useEffect } from "react";
+import { useQuery } from "react-query";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { IContent } from "../api";
+import { getDetailResults, IContent, IGetDetailResult } from "../api";
 import { makeImagePath, makeOverviewShorten } from "../utils";
 
 const Overlay = styled(motion.div)`
@@ -18,7 +20,6 @@ const ClickedBox = styled(motion.div)`
   z-index: 99;
   position: absolute;
   width: 40vw;
-  height: 80vh;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -44,6 +45,7 @@ const ClickedBoxTitle = styled.h3`
 const ClickedBoxItems = styled.div`
   padding: 20px;
 `;
+
 const ClickedBoxSubTitle = styled.h4`
   position: relative;
   top: -70px;
@@ -55,6 +57,7 @@ const ClickedBoxSubTitle = styled.h4`
 const ClickedBoxOverview = styled.p`
   position: relative;
   top: -60px;
+  font-size: 18px;
   color: ${(props) => props.theme.white.lighter};
 `;
 
@@ -75,12 +78,18 @@ const ClickedBoxDetailItem = styled.div`
 
 const DItemName = styled.span`
   font-weight: bold;
-  font-size: 16px;
+  font-size: 20px;
   margin-bottom: 10px;
 `;
+
 const DItemValue = styled.span`
-  font-size: 14px;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #f39c12;
+  font-size: 18px;
 `;
 
 interface IClickedBox {
@@ -97,11 +106,26 @@ function SliderClickedBox({
   clickedContent,
 }: IClickedBox) {
   const history = useHistory();
+  const location = useLocation();
 
   const { scrollY } = useViewportScroll();
+  const searchKeyword = new URLSearchParams(location.search).get("keyword");
+
+  const { data: detailData, isLoading: detailLoading } =
+    useQuery<IGetDetailResult>([contentType, "detail"], () =>
+      getDetailResults(contentType, contentId)
+    );
+
   const onOverlayClicked = () => {
-    if (contentType === "movie") history.push("/");
-    else history.push("/tv");
+    if (location.pathname === "/search") {
+      history.push(`/search?keyword=${searchKeyword}`);
+    } else {
+      if (contentType === "movie") {
+        history.push("/");
+      } else {
+        history.push("/tv");
+      }
+    }
   };
   return (
     <>
@@ -113,7 +137,7 @@ function SliderClickedBox({
         />
         <ClickedBox
           key={name + contentType + contentId}
-          layoutId={name + contentType + contentId}
+          /*layoutId={name + contentType + contentId}*/
           style={{
             top: scrollY.get() + 100,
           }}
@@ -143,12 +167,8 @@ function SliderClickedBox({
               </ClickedBoxOverview>
               <ClickedBoxDetailItems>
                 <ClickedBoxDetailItem>
-                  <DItemName>Vote Average</DItemName>
-                  <DItemValue>{clickedContent.vote_average}</DItemValue>
-                </ClickedBoxDetailItem>
-                <ClickedBoxDetailItem>
-                  <DItemName>Vote Count</DItemName>
-                  <DItemValue>{clickedContent.vote_count}</DItemValue>
+                  <DItemName>Rating Average</DItemName>
+                  <DItemValue>{`${clickedContent.vote_average} (${clickedContent.vote_count} votes) `}</DItemValue>
                 </ClickedBoxDetailItem>
                 <ClickedBoxDetailItem>
                   <DItemName>Popularity</DItemName>
@@ -162,10 +182,42 @@ function SliderClickedBox({
                       : clickedContent.first_air_date}
                   </DItemValue>
                 </ClickedBoxDetailItem>
-                <ClickedBoxDetailItem>
-                  <DItemName>Language</DItemName>
-                  <DItemValue>{clickedContent.original_language}</DItemValue>
-                </ClickedBoxDetailItem>
+
+                {contentType === "tv" &&
+                detailData?.created_by &&
+                detailData.created_by.length > 0 ? (
+                  <ClickedBoxDetailItem style={{ gridColumn: "1 / span 3" }}>
+                    <DItemName>Creted by</DItemName>
+                    <DItemValue>
+                      {detailData?.created_by.map((creator) => (
+                        <span>{creator.name}</span>
+                      ))}
+                    </DItemValue>
+                  </ClickedBoxDetailItem>
+                ) : null}
+
+                {detailData?.genres && detailData.genres.length > 0 ? (
+                  <ClickedBoxDetailItem style={{ gridColumn: "1 / span 3" }}>
+                    <DItemName>Genres</DItemName>
+                    <DItemValue>
+                      {detailData?.genres.map((genre) => (
+                        <span>{genre.name}</span>
+                      ))}
+                    </DItemValue>
+                  </ClickedBoxDetailItem>
+                ) : null}
+
+                {detailData?.production_companies &&
+                detailData.production_companies.length > 0 ? (
+                  <ClickedBoxDetailItem style={{ gridColumn: "1 / span 3" }}>
+                    <DItemName>Companies</DItemName>
+                    <DItemValue>
+                      {detailData?.production_companies.map((company) => (
+                        <span>{company.name}</span>
+                      ))}
+                    </DItemValue>
+                  </ClickedBoxDetailItem>
+                ) : null}
               </ClickedBoxDetailItems>
             </ClickedBoxItems>
           </>
